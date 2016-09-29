@@ -3,10 +3,18 @@ var config = require('./config');
 var tweetsFile = 'data/tweets.json';
 
 var fs = require('fs');
-var http = require('http');
 var cron = require('node-cron');
 var Twitter = require('twitter');
 
+var express = require("express");
+var path = require("path");
+var bodyParser = require("body-parser");
+
+var app = express();
+app.use(bodyParser.json());
+
+
+// TWITTER CONFIG
 var index = 0;
 var tweets = JSON.parse(
     fs.readFileSync(tweetsFile)
@@ -27,6 +35,8 @@ var task = cron.schedule('*/1 * * * *', function() {
   }
 }, false);
 
+// FUNCTIONS
+
 var publishTweet = function(tweet) {
   client.post('statuses/update', {status: tweet},  function(error, tweet, response) {
     if(error) throw error;
@@ -34,36 +44,39 @@ var publishTweet = function(tweet) {
   });
 }
 
-function handleRequest(req, res) {
-    console.log(req.url);
+// API CALLS
 
-    if(req.url == "/start") {
-      task.start();
-      res.end("started");
-    }
-    if(req.url == "/stop") {
-      task.stop();
-      res.end("stopped");
-    }
-
-    if(req.url == "/restart") {
-      task.stop();
-      index = 0;
-      task.start();
-      res.end("restarted");
-    }
-
-    if(req.url == "/test") {
-      testTweet(res);
-      publishTweet('I Love Twitter');
-      res.end("testing")
-    }
-
-    res.end("no action");
+function handleError(res, reason, message, code) {
+  console.log("ERROR: " + reason);
+  res.status(code || 500).json({"error": message});
 }
 
-var server = http.createServer(handleRequest);
+app.get("/start", function(req, res) {
+  task.start();
+  console.log("started");
+  res.status(200);
+});
 
-server.listen(PORT, function(){
-    console.log("Server listening on: http://localhost:%s", PORT);
+app.get("/stop", function(req, res) {
+  task.stop();
+  console.log("stopped");
+  res.status(200);
+});
+
+app.get("/restart", function(req, res) {
+  task.stop();
+  index = 0;
+  task.start();
+  console.log("restarted");
+  res.status(200);
+});
+
+app.get("/test", function(req, res) {
+  publishTweet('I Love Twitter');
+  res.status(200);
+});
+
+var server = app.listen(process.env.PORT || 8080, function () {
+   var port = server.address().port;
+   console.log("App now running on port", port);
 });
