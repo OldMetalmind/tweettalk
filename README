@@ -1,9 +1,10 @@
-A really simple twitter bot that publish a tweet from a list every minute;
+A simple twitter bot that publish a tweet from a list every minute;
 
-Config:
-1)
-Create a file "config.js" with the following:
---
+###### Configuration:
+1) Create a file ```config.js``` with the following
+
+
+```
 var config = {};
 
 config.twitter = {};
@@ -12,24 +13,14 @@ config.twitter.consumer_secret = '<consumer_secret>';
 config.twitter.access_token_key = '<access_token_key>';
 config.twitter.access_token_secret = '<access_token_secret>';
 module.exports = config;
+```
 
----
+2) Create a json tweet file at ```/data/tweets.json``` with an array of tweets you want
 
-2)
-Create a json tweet file at /data/tweets.json with an array of tweets
-
-example:
+```
 [
   "hello world",
   "yup this is a bot",
   "such tweet much wow"
 ]
-
-3)
-...
-
-4)
-Profit
-
-
-There is a lot to improve, this was made "Quick and Dirty"
+```
